@@ -4,9 +4,12 @@ using UnityEngine;
 [HelpURL("https://docs.google.com/document/d/1rdTEVSrCcYOjqTJcFCHj46RvnbdJhmQUb3gHMDhVftI/edit?usp=sharing")]
 public class ScalerModule : MonoBehaviour
 {
-    private Vector3 targetScale = new Vector3(2,2,2);
+    [SerializeField]
+    private Vector3 targetScale = new Vector3(2, 2, 2);
 
-    private float changeSpeed;
+    [SerializeField]
+    [Min(0.1f)]
+    private float changeSpeed = 1f;
 
     private Vector3 defaultScale;
     private Transform myTransform;
@@ -19,8 +22,14 @@ public class ScalerModule : MonoBehaviour
         toDefault = false;
     }
 
+    [ContextMenu("Activate Module")] 
     public void ActivateModule()
     {
+        if (!gameObject.activeInHierarchy)
+        {
+            gameObject.SetActive(true);  
+        }
+
         Vector3 target = toDefault ? defaultScale : targetScale;
         StopAllCoroutines();
         StartCoroutine(ScaleCoroutine(target));
@@ -35,9 +44,9 @@ public class ScalerModule : MonoBehaviour
 
     private IEnumerator ScaleCoroutine(Vector3 target)
     {
-        Vector3 start = myTransform.lossyScale;
+        Vector3 start = myTransform.localScale;
         float t = 0;
-        while(t < 1)
+        while (t < 1)
         {
             t += Time.deltaTime * changeSpeed;
             myTransform.localScale = Vector3.Lerp(start, target, t);
