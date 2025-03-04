@@ -7,26 +7,49 @@ using UnityEngine;
 [HelpURL("https://docs.google.com/document/d/1GP4_m0MzOF8L5t5pZxLChu3V_TFIq1czi1oJQ2X5kpU/edit?usp=sharing")]
 public class GameObjectActivator : MonoBehaviour
 {
-    private List<StateContainer> targets;
-    private bool debug;
+    [Tooltip("Список объектов и их состояний.")]
+    [SerializeField]
+    private List<StateContainer> targets = new List<StateContainer>();
+
+    [Tooltip("Включает/выключает вывод отладочных сообщений и отрисовку связей в сцене.")]
+    [SerializeField]
+    private bool debug = false;
 
     private void Awake()
     {
         foreach (var item in targets)
         {
-            item.defaultValue = item.targetGO.activeSelf;
+            if (item != null && item.targetGO != null)
+            {
+                item.defaultValue = item.targetGO.activeSelf;
+            }
+            else if (debug)
+            {
+                Debug.LogWarning("Обнаружен некорректный объект в списке targets.", gameObject);
+            }
         }
     }
+
+    [ContextMenu("Переключить объекты")]
     public void ActivateModule()
     {
         SetStateForAll();
     }
+
+    [ContextMenu("Переключить объекты в состояние по умолчанию")]
     public void ReturnToDefaultState()
     {
         foreach (var item in targets)
         {
-            item.targetState = item.defaultValue;
-            item.targetGO.SetActive(item.defaultValue);
+            if (item != null && item.targetGO != null)
+            {
+                item.targetState = item.defaultValue;
+                item.targetGO.SetActive(item.defaultValue);
+            }
+            else if (debug)
+            {
+                Debug.LogWarning("Обнаружен некорректный объект в списке targets при возврате к стандартному состоянию.", gameObject);
+            }
         }
     }
 
@@ -34,14 +57,28 @@ public class GameObjectActivator : MonoBehaviour
     {
         for (int i = 0; i < targets.Count; i++)
         {
-            if (targets[i] != null)
+            if (targets[i] != null && targets[i].targetGO != null)
             {
                 targets[i].targetGO.SetActive(targets[i].targetState);
                 targets[i].targetState = !targets[i].targetState;
             }
-            else
+            else if (debug)
             {
-                Debug.LogError("Элемент " + i + " равен null. Вероятно, была утеряна ссылка. Источник :" + gameObject.name);
+                Debug.LogError($"Элемент {i} равен null или не содержит ссылку на GameObject. Источник: {gameObject.name}");
+            }
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (!debug) return;
+
+        foreach (var item in targets)
+        {
+            if (item != null && item.targetGO != null)
+            {
+                Gizmos.color = item.targetState ? Color.green : Color.red;
+                Gizmos.DrawLine(transform.position, item.targetGO.transform.position);
             }
         }
     }
