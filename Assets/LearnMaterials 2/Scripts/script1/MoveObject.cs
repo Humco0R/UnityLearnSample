@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MoveObject : SampleScript
+public class MoveObject : IlyaScript
 {
     public Vector3 targetPosition = new Vector3(3, 0, 0);  // ЦЕЛЬ
     private float speed = 1.0f;  // Скорость перемещения

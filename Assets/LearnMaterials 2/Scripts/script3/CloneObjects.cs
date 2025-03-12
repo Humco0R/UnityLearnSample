@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class CloneObjects : SampleScript
+public class CloneObjects : IlyaScript
 {
     public GameObject prefab;  // префаб, который будет клонироваться
     public int cloneCount = 5;  // кол-во клонов
@@ -10,12 +10,12 @@ public class CloneObjects : SampleScript
     public override void Use()
     {
         if (prefab != null)
-        { 
+        {
             for (int i = 0; i < cloneCount; i++)
             { // вычисление позиции для каждого клона
-                Vector3 position = transform.position + new Vector3(i * distanceStep, 0, 0);
+                Vector3 position = transform.position + transform.right * (i + 1) * distanceStep;
                 // создание клона
-                Instantiate(prefab, position, Quaternion.identity);
+                Instantiate(prefab, position, transform.rotation);
             }
         }
         else
